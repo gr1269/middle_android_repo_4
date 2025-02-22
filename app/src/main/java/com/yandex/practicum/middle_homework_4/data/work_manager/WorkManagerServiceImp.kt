@@ -41,6 +41,10 @@ class WorkManagerServiceImp(
     private fun createConstraints(): Constraints {
         // Реализуйте метод, возвращающий Constraints
         // В условиях укажите необходимость наличия интернет соединения.
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        return constraints
     }
 
     private fun createRequest(repeat: Long, delayed: Long): PeriodicWorkRequest {
@@ -49,6 +53,15 @@ class WorkManagerServiceImp(
         // Интервал запуска задачи (в минутах)  = repeat.
         // Отсрочка запуска задачи в (секундах) = delayed.
         // Не забудьте в билдере указать constraints.
+
+        val periodicWorkRequest = PeriodicWorkRequestBuilder<RefreshWorker>(
+            repeatInterval = repeat,
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
+            .setInitialDelay(delayed, TimeUnit.SECONDS)
+            .setConstraints(networkConstraints)
+            .build()
+        return periodicWorkRequest
     }
 
     override fun launchRefreshWork() {
